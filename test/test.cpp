@@ -2,7 +2,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "../src/main.cpp"
+#include "AVL.hpp"
+#include <random>
 
 using namespace std;
 
@@ -52,4 +53,9 @@ TEST_CASE("Insertion Testing Rotation Cases", "[one]") {
 		REQUIRE(vec[1] == "Ryan");
 		REQUIRE(vec[2] == "Jonah");
 	}
+}
+
+TEST_CASE("100 points test", "[one]") {
+	AVL tester = AVL();
+
 }
