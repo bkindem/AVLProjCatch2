@@ -7,6 +7,9 @@
 
 using namespace std;
 
+// Name: Ben Kindem
+// UFID: 54847697
+
 TEST_CASE("Insertion Testing Invalid Inputs", "[one]") {
 	AVL tester = AVL();
 	REQUIRE("unsuccessful" == tester.insert("B3N", 11111111)); // letters in name
@@ -57,8 +60,11 @@ TEST_CASE("Insertion Testing Rotation Cases", "[one]") {
 
 
 int checkHeight(Node* root) {
-	if (root == nullptr) return 0;
-	return 1 + checkHeight(root->left) + checkHeight(root->right);
+	if (root == nullptr) return 1;
+	int leftHeight = checkHeight(root->left);
+	int rightHeight = checkHeight(root->right);
+	if (leftHeight >= rightHeight) return 1 + leftHeight;
+	return 1 + rightHeight;
 }
 
 bool boolHeight(Node* root) {
