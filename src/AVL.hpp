@@ -11,6 +11,8 @@ struct Node{
 
 class AVL {
 public:
+    Node* root;
+
     std::string insert(std::string name, int ufid) {
         return "tbd";
     }

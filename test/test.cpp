@@ -55,7 +55,33 @@ TEST_CASE("Insertion Testing Rotation Cases", "[one]") {
 	}
 }
 
+
+int checkHeight(Node* root) {
+	if (root == nullptr) return 0;
+	return 1 + checkHeight(root->left) + checkHeight(root->right);
+}
+
+bool boolHeight(Node* root) {
+	if (root == nullptr) return true;
+	int difference = checkHeight(root->left) - checkHeight(root->right);
+	if (difference < -1 || difference > 1) return false;
+	return boolHeight(root->left) && boolHeight(root->right);
+}
+
 TEST_CASE("100 points test", "[one]") {
 	AVL tester = AVL();
+	for (int i = 0; i < 100; i++) {
+		tester.insert("test", i+10000000);
+	}
 
+	// create random var
+	std::random_device rando;
+	std::mt19937 gen(rando());
+	std::uniform_int_distribution<int> dist(10000000,10000099);
+	for (int i = 0; i < 10; i++) {
+		tester.remove(dist(gen));
+	}
+
+	//confirm still in order
+	REQUIRE(boolHeight(tester.root) == true);
 }
