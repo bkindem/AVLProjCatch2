@@ -21,7 +21,8 @@ include_directories(src)
 
 add_executable(Main
         src/main.cpp
-        src/AVL.hpp # your main file
+        src/AVL.hpp
+        src/AVL.cpp # your main file
         # add your own header files below - should be automatically added in CLion
         # example (can also separate with newlines):
         # src/AVL.h src/AVL.cpp
@@ -34,7 +35,8 @@ add_executable(Tests
         # example (can also separate with newlines):
         # src/AVL.h src/AVL.cpp
         src/AVL.hpp
-        )
+        src/AVL.cpp
+)
         
 target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain) #link catch to test.cpp file
 # the name here must match that of your testing executable (the one that has test.cpp)

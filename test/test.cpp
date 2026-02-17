@@ -10,6 +10,12 @@ using namespace std;
 // Name: Ben Kindem
 // UFID: 54847697
 
+TEST_CASE("Insertion Testing valid takes", "[one]") {
+	AVL tester = AVL();
+	REQUIRE(tester.insert("Ben", 11111111)=="successful");
+	REQUIRE(tester.insert("Ryan", 33333333)=="successful");
+}
+
 TEST_CASE("Insertion Testing Invalid Inputs", "[one]") {
 	AVL tester = AVL();
 	REQUIRE("unsuccessful" == tester.insert("B3N", 11111111)); // letters in name
