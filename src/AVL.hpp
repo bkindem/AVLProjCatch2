@@ -27,4 +27,8 @@ public:
 private:
     //assistive function
     Node* locateUfid(int ufid, Node* curr);
+    void checkRotate(int ufid, Node* curr);
+    int checkHeight(Node* curr);
+    std::vector<Node*> adjustAVL(int ufid, Node* curr);
+    std::vector<Node*> backtraceNode(int ufid, Node* curr);
 };
