@@ -66,7 +66,7 @@ TEST_CASE("Insertion Testing Rotation Cases", "[one]") {
 
 
 int checkHeight(Node* root) {
-	if (root == nullptr) return 1;
+	if (root == nullptr) return -1;
 	int leftHeight = checkHeight(root->left);
 	int rightHeight = checkHeight(root->right);
 	if (leftHeight >= rightHeight) return 1 + leftHeight;
