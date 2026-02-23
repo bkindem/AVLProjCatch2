@@ -1,6 +1,9 @@
 #include "AVL.hpp"
 #include <stdexcept>
 
+// basic constructor
+AVL::AVL() : root(nullptr) {}
+
 // finds the node above where the new node will lie, in all finds the parent node of the inserted node
 Node* AVL::locateUfid(int ufid, Node* curr) {
     if (curr == nullptr) return nullptr;
@@ -17,7 +20,7 @@ Node* AVL::locateUfid(int ufid, Node* curr) {
 
 // finds the height of a node used
 int AVL::checkHeight(Node* curr) {
-    if (curr == nullptr) return -1;
+    if (curr == nullptr) return 0;
     int leftHeight = checkHeight(curr->left);
     int rightHeight = checkHeight(curr->right);
     if (leftHeight >= rightHeight) return 1 + leftHeight;
@@ -83,7 +86,7 @@ std::vector<Node*> AVL::backtrace(Node* curr, int ufid) {
 
 std::string AVL::insert(std::string name, int ufid) {
     // checks undefined answers
-    if (ufid > 99999999 || ufid < 10000000) return "unsuccessful";
+    if (ufid > 99999999 || ufid < 0) return "unsuccessful";
     bool alpha = true;
     for (int i = 0; i < static_cast<int>(name.size()); i++) {
         unsigned char a = name[i];
@@ -96,15 +99,13 @@ std::string AVL::insert(std::string name, int ufid) {
         return "successful";
     }
 
-
-
     // locates the position the newly added node should be placed
     Node* parent = locateUfid(ufid, root);
     if (parent-> ufid == ufid) return "unsuccessful";
-
     if (ufid > parent->ufid) parent->right = new Node(name, ufid);
     else parent->left = new Node(name, ufid);
 
+    //begins the search for rotations and implements a function to carry out the rotation if one is needed
     std::vector<Node*> BC = backtrace(root, ufid);
     for (int i = 0; i < static_cast<int>(BC.size()); i++) {
         int tempAvlVal = checkAVLValue(BC[i]);
@@ -122,6 +123,9 @@ std::string AVL::insert(std::string name, int ufid) {
     return "successful";
 }
 
+//####################################  DONE WITH INSERT #####################
+
+
 Node** AVL::locateUfidBranch(int ufid, Node* curr) {
     if (ufid == root->ufid) return &root;
     if (ufid > curr->ufid && curr->right != nullptr) {
@@ -135,21 +139,49 @@ Node** AVL::locateUfidBranch(int ufid, Node* curr) {
     return nullptr;
 }
 
+ Node** AVL::findSmallestNodeRight(Node* curr) {
+    if (curr->right->left == nullptr) return &curr->right;
+    curr = curr->right;
+    while (curr->left->left != nullptr) {
+        curr = curr->left;
+    }
+    return &curr->left;
+}
+
 void AVL::removeRecursive(Node* curr, Node** branch) {
     int children = 0;
     if (curr->right != nullptr && curr->left != nullptr) children = 2;
     else if (curr->right != nullptr || curr->left != nullptr) children = 1;
 
-    if (children = 0) delete curr;
-    else if (children = 1) {
-
+    if (children == 0) {
+        delete curr;
+        *branch = nullptr;
+    }
+    else if (children == 1) {
+        if (curr->left != nullptr) *branch = curr->left;
+        else *branch = curr->right;
+        curr->left = nullptr;
+        curr->right = nullptr;
+        delete curr;
+    }
+    else if (children == 2) {
+        Node** nuBranch = findSmallestNodeRight(curr);
+        Node* nuNode = *nuBranch;
+        int tempUfid = curr->ufid;
+        // swap the values
+        std::string tempName = curr->name;
+        curr->name = nuNode->name;
+        curr->ufid = nuNode->ufid;
+        nuNode->name = tempName;
+        nuNode->ufid = tempUfid;
+        removeRecursive(nuNode, nuBranch);
     }
 
 }
 
 
 std::string AVL::remove(int ufid) {
-    if (ufid > 99999999 || ufid < 10000000) return "unsuccessful";
+    if (ufid > 99999999 || ufid < 0) return "unsuccessful";
     if (root == nullptr) return "unsuccessful";
     Node** branch;
     Node* oldNode;
@@ -166,34 +198,170 @@ std::string AVL::remove(int ufid) {
     return "successful";
 }
 
-std::vector<std::string> AVL::printInorder() {
-    std::vector<std::string> temp;
-    temp.emplace_back("tbd");
-    temp.emplace_back("tbd");
-    temp.emplace_back("tbd");
-    return temp;
+std::vector<Node*> AVL::printInorder() {
+    std::vector<Node*> result;
+    std::vector<Node*> backTrace;
+    if (root == nullptr) return result;
+    Node* curr = root;
+
+    while (true) {
+        // bypassing the loops if the node doesn't exist
+        if (curr->left == nullptr) curr->l = true;
+        if (curr->right == nullptr) curr->r = true;
+
+        if (curr->l == false) {
+            if (backTrace.empty() || backTrace.back() != curr) backTrace.push_back(curr);
+            curr->l = true;
+            curr = curr->left;
+            continue;
+        }
+        if (curr->print == false) {
+            result.push_back(curr);
+            curr->print = true;
+        }
+        if (curr->r == false) {
+            if (backTrace.empty() || backTrace.back() != curr) backTrace.push_back(curr);
+            curr->r = true;
+            curr = curr->right;
+            continue;
+        }
+        if (!(backTrace.empty()) && backTrace.back() == curr) backTrace.pop_back();
+        if (backTrace.empty()) {
+            curr->print = false;
+            curr->l = false;
+            curr->r = false;
+            break;
+        }
+        curr->print = false;
+        curr->l = false;
+        curr->r = false;
+        curr = backTrace.back();
+    }
+    return result;
 }
 
-std::vector<std::string> AVL::printPreorder() {
-    std::vector<std::string> temp;
-    temp.emplace_back("tbd");
-    temp.emplace_back("tbd");
-    temp.emplace_back("tbd");
-    return temp;
+
+
+std::vector<Node*> AVL::printPreorder() {
+    std::vector<Node*> result;
+    std::vector<Node*> backTrace;
+    if (root == nullptr) return result;
+    Node* curr = root;
+
+    while (true) {
+        if (curr->print == false) {
+            result.push_back(curr);
+            curr->print = true;
+        }
+        // bypassing the loops if the node doesn't exist
+        if (curr->left == nullptr) curr->l = true;
+        if (curr->right == nullptr) curr->r = true;
+
+        if (curr->l == false) {
+            if (backTrace.empty() || backTrace.back() != curr) backTrace.push_back(curr);
+            curr->l = true;
+            curr = curr->left;
+            continue;
+        }
+        if (curr->r == false) {
+            if (backTrace.empty() || backTrace.back() != curr) backTrace.push_back(curr);
+            curr->r = true;
+            curr = curr->right;
+            continue;
+        }
+        if (!(backTrace.empty()) && backTrace.back() == curr) backTrace.pop_back();
+        if (backTrace.empty()) {
+            curr->print = false;
+            curr->l = false;
+            curr->r = false;
+            break;
+        }
+        curr->print = false;
+        curr->l = false;
+        curr->r = false;
+        curr = backTrace.back();
+    }
+    return result;
 }
 
-std::vector<std::string> AVL::printPostorder() {
-    std::vector<std::string> temp;
-    temp.emplace_back("tbd");
-    temp.emplace_back("tbd");
-    temp.emplace_back("tbd");
-    return temp;
+std::vector<Node*> AVL::printPostorder() {
+    std::vector<Node*> result;
+    std::vector<Node*> backTrace;
+    if (root == nullptr) return result;
+    Node* curr = root;
+    while (true) {
+        // bypassing the loops if the node doesn't exist
+        if (curr->left == nullptr) curr->l = true;
+        if (curr->right == nullptr) curr->r = true;
+
+        if (curr->l == false) {
+            if (backTrace.empty() || backTrace.back() != curr) backTrace.push_back(curr);
+            curr->l = true;
+            curr = curr->left;
+            continue;
+        }
+        if (curr->r == false) {
+            if (backTrace.empty() || backTrace.back() != curr) backTrace.push_back(curr);
+            curr->r = true;
+            curr = curr->right;
+            continue;
+        }
+        if (curr->print == false) {
+            result.push_back(curr);
+            curr->print = true;
+        }
+        if (!(backTrace.empty()) && backTrace.back() == curr) backTrace.pop_back();
+        if (backTrace.empty()) {
+            curr->print = false;
+            curr->l = false;
+            curr->r = false;
+            break;
+        }
+        curr->print = false;
+        curr->l = false;
+        curr->r = false;
+        curr = backTrace.back();
+    }
+    return result;
+
 }
 
 std::string AVL::printLevelCount() {
-    return "tbd";
+    return std::to_string(checkHeight(root));
 }
 
 std::string AVL::removeInorder(int n) {
-    return "tbd";
+    std::vector<Node*> result;
+    result = printInorder();
+    if (n >= static_cast<int>(result.size()) || n < 0) return "unsuccessful";
+    int ufid = result[n]->ufid;
+    return remove(ufid);
+}
+
+std::string AVL::search(int ufid) {
+    if (root == nullptr) return "unsuccessful";
+
+    Node* curr = root;
+    while (true) {
+        if (ufid == curr->ufid) return curr->name;
+        if (ufid > curr->ufid ) {
+            if (curr->right == nullptr) return "unsuccessful";
+            curr = curr->right;
+        }
+        else {
+            if (curr->left == nullptr) return "unsuccessful";
+            curr = curr->left;
+        }
+    }
+}
+
+std::vector<Node*> AVL::search(std::string name) {
+    std::vector<Node*> preOrder;
+    preOrder = printPreorder();
+    if (preOrder.empty()) return preOrder;
+    std::vector<Node*> result;
+    for (Node* curr : preOrder) {
+        if (curr->name == name) result.push_back(curr);
+    }
+    return result;
 }
